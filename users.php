@@ -1,0 +1,167 @@
+<?php
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+//session
+session_start();
+if(!isset($_SESSION['login_user']))
+{
+    header("Location: index");
+}
+$login_session=$_SESSION['login_user'];
+$user_id = $_SESSION['id'];
+
+//db config
+require 'includes/config.php';
+require 'user_profile.php';
+
+
+//functions
+     require 'includes/functions.php';
+//page name
+$mainpage ='users';
+$page = 'users';
+
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <?php
+        //header
+         require 'includes/header.php';
+        //css
+        require 'includes/css.php';
+        
+        ?>
+    </head>
+    <body class="sidebar-wide">
+        <!--navigation-->
+        <?php
+        //top navigation
+        require 'includes/top-menu.php';
+        
+        ?>
+        <!-- Page container -->
+        <div class="page-container">
+            <!-- side bar-->
+            <?php require 'includes/side-menu.php'; ?>
+            <!--ennd of side bar-->
+            <!-- Page content -->
+  <div class="page-content">
+    <!-- Page header -->
+    <?php require 'includes/breadcrumb.php'; ?>
+            <!-- end Page header-->
+             <!-- Default panel -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h6 class="panel-title">Default panel</h6>
+      </div>
+      <div class="panel-body">
+         <div class="table-responsive">
+          <table id="example-table" class="table table-striped">
+              <thead>
+              <tr>
+                  <th><input type="checkbox" > </th>
+
+                  <th>User Name</th>
+
+                  <th>Phone Number</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+              </tr>
+              </thead>
+
+              <?php
+              $users_query  = "select * from sp_users";
+              $users_res    = $connect->query($users_query);
+              $users_count  =   $users_res->num_rows;
+
+              ?>
+              <?php
+              if ($users_count > 0) {
+
+                  while($users_row=$users_res->fetch_assoc()) {
+
+                      $users_image = $users_row['user_img'];
+                      $users_names = $users_row['fname']." ". $users_row['lname'];
+                      $users_role = $users_row['role'];
+                      $users_status = $users_row['status'];
+                      $users_phone= $users_row['phone_no'];
+
+                      $users_id = $users_row['id'];?>
+                      <tr>
+                          <td><input type="checkbox" > </td>
+                          <td><a href='edit-user?id=<?php echo $users_id ?>'><?php echo $users_names; ?></a></td>
+                           <td ><a href="tel:<?php echo $users_phone; ?>"> <?php echo $users_phone; ?></a></td>
+                          <td ><?php
+                              if($users_role==1){
+                                  echo'<span class="label label-info">Admin</span>';
+
+                              }else if($users_role ==2){
+                                  echo'<span class="label label-primary">Project Manager</span>';
+                              }else{
+                                  echo'<span class="label label-info">User</span>';
+                              }
+
+                              ?></td>
+                          <td ><?php if($users_status==1){
+                                  echo'<span class="label label-success">Active</span>';
+
+                              }else{
+                                  echo'<span class="label label-danger">suspended</span>';
+                              } ?></td>
+                          <td width="15%"><div class="btn-group"><a href='edit-user?id=<?php echo $users_id ?>' data-toggle="tooltip" title="Edit" data-placement="top" class="btn btn-success btn-xs"><i class="fa fa-edit"></i> </a>
+                                  &nbsp;<a href='delete?id=<?php echo $users_id ?>&type=user' data-toggle="tooltip" title="Delete" data-placement="top" onclick="return confirm('Are you sure you wish to move this record to trash?');" class="btn btn-danger btn-xs"><i class="fa fa-trash-o"></i> </a>
+                                  <a href='update_password?id=<?php echo $users_id ?>' class="btn btn-success btn-xs" data-toggle="tooltip" title="update password" data-placement="top" ><i class="fa fa-lock"></i></a>
+                              </div>
+                          </td>
+                      </tr>
+
+
+                  <?php }
+              }  else {
+                  echo 'No Records';
+              }
+
+              ?>
+
+
+              </tbody>
+          </table>
+      </div>
+
+
+      </div>
+    </div>
+    <!-- /default panel -->
+            
+      <!--footer-->
+<?php require 'includes/footer.php'; ?>      
+  </div>      
+  </div>
+        
+        <!-- end Page container -->
+        <!--JS-->
+        <?php require 'includes/js.php';?>
+        <script src="js/jquery.min.js"></script>
+        <script>
+            //DataTables Initialization
+            $(document).ready(function() {
+                $('#example-table').dataTable();
+            });
+            $(document).ready(function() {
+                $('#ongoing-table').dataTable();
+            });
+            $(document).ready(function() {
+                $('#completed-table').dataTable();
+            });
+
+        </script>
+    </body>
+</html>
+
